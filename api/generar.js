@@ -5,6 +5,7 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
+  // Solo permitir POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido" });
   }
@@ -12,26 +13,23 @@ export default async function handler(req, res) {
   try {
     const { prompt } = req.body;
 
-    if (!prompt || prompt.trim() === "") {
-      return res.status(400).json({ error: "Falta el prompt" });
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt vacío" });
     }
 
-    const image = await openai.images.generate({
+    console.log("🧠 Generando imagen con prompt:", prompt);
+
+    const result = await openai.images.generate({
       model: "gpt-image-1",
       prompt: prompt,
       size: "1024x1024",
     });
 
-    res.status(200).json({
-      url: image.data[0].url,
-    });
+    const imageUrl = result.data[0].url;
 
+    return res.status(200).json({ url: imageUrl });
   } catch (error) {
-    console.error("ERROR OPENAI:", error);
-
-    res.status(500).json({
-      error: "Error generando la imagen",
-      detalle: error.message,
-    });
+    console.error("❌ Error en /api/generar:", error);
+    return res.status(500).json({ error: "Error generando la imagen" });
   }
 }
