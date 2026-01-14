@@ -5,39 +5,63 @@
   <title>Generador de Memes</title>
 </head>
 <body>
+
   <h1>Generador de Memes con IA</h1>
 
-  <input id="texto" placeholder="Describe tu meme" size="40">
+  <input
+    id="texto"
+    placeholder="Describe tu meme"
+    size="40"
+  >
   <button onclick="generar()">Generar</button>
 
   <p id="estado"></p>
-  <img id="imagen" width="400" alt="Aquí aparecerá tu meme">
+
+  <img
+    id="imagen"
+    width="400"
+    style="display:none; margin-top:10px;"
+  >
 
   <script>
     async function generar() {
       const estado = document.getElementById("estado");
-      const texto = document.getElementById("texto").value;
       const imagen = document.getElementById("imagen");
+      const texto = document.getElementById("texto").value.trim();
 
-      estado.innerText = "Generando...";
-      imagen.src = "";
+      imagen.style.display = "none";
+
+      if (!texto) {
+        estado.innerText = "❌ Escribe una descripción primero";
+        return;
+      }
+
+      estado.innerText = "Generando... ⏳";
 
       try {
         const r = await fetch("/api/generar", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ descripcion: texto })
+          body: JSON.stringify({ prompt: texto })
         });
 
         const data = await r.json();
 
-        imagen.src = data.imageUrl; // 👈 CLAVE
-        estado.innerText = "¡Listo!";
-      } catch (error) {
-        estado.innerText = "Error al generar la imagen 😢";
-        console.error(error);
+        if (!r.ok) {
+          estado.innerText = "❌ " + (data.error || "Error desconocido");
+          return;
+        }
+
+        imagen.src = data.url;
+        imagen.style.display = "block";
+        estado.innerText = "¡Listo! 🎉";
+
+      } catch (e) {
+        estado.innerText = "❌ Error de conexión";
+        console.error(e);
       }
     }
   </script>
+
 </body>
 </html>
