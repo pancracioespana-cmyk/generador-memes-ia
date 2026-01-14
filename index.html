@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Generador de Memes</title>
+</head>
+<body>
+  <h1>Generador de Memes con IA</h1>
+
+  <input id="texto" placeholder="Describe tu meme" size="40">
+  <button onclick="generar()">Generar</button>
+
+  <p id="estado"></p>
+  <img id="imagen" width="400">
+
+  <script>
+    async function generar() {
+      document.getElementById("estado").innerText = "Generando...";
+      const texto = document.getElementById("texto").value;
+
+      const r = await fetch("/api/generar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: texto })
+      });
+
+      const data = await r.json();
+      document.getElementById("imagen").src = data.url;
+      document.getElementById("estado").innerText = "¡Listo!";
+    }
+  </script>
+</body>
+</html>
