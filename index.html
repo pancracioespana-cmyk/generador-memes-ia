@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Generador de Memes</title>
@@ -11,22 +11,32 @@
   <button onclick="generar()">Generar</button>
 
   <p id="estado"></p>
-  <img id="imagen" width="400">
+  <img id="imagen" width="400" alt="Aquí aparecerá tu meme">
 
   <script>
     async function generar() {
-      document.getElementById("estado").innerText = "Generando...";
+      const estado = document.getElementById("estado");
       const texto = document.getElementById("texto").value;
+      const imagen = document.getElementById("imagen");
 
-      const r = await fetch("/api/generar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: texto })
-      });
+      estado.innerText = "Generando...";
+      imagen.src = "";
 
-      const data = await r.json();
-      document.getElementById("imagen").src = data.url;
-      document.getElementById("estado").innerText = "¡Listo!";
+      try {
+        const r = await fetch("/api/generar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ descripcion: texto })
+        });
+
+        const data = await r.json();
+
+        imagen.src = data.imageUrl; // 👈 CLAVE
+        estado.innerText = "¡Listo!";
+      } catch (error) {
+        estado.innerText = "Error al generar la imagen 😢";
+        console.error(error);
+      }
     }
   </script>
 </body>
