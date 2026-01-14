@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   try {
     const { prompt } = req.body;
 
-    if (!prompt) {
+    if (!prompt || prompt.trim() === "") {
       return res.status(400).json({ error: "Falta el prompt" });
     }
 
@@ -27,7 +27,8 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("ERROR OPENAI:", error);
+
     res.status(500).json({
       error: "Error generando la imagen",
       detalle: error.message,
